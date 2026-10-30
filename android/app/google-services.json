@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "230460741597",
+    "project_id": "squadra-csi-dev",
+    "storage_bucket": "squadra-csi-dev.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:230460741597:android:2a0a7e931dbf1b37b44834",
+        "android_client_info": {
+          "package_name": "io.github.lucacoronaa.squadra_csi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDS-Jcl_DVoi-bul3yLJK_24oAjDvdMEtw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

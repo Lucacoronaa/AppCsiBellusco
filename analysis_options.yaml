@@ -9,6 +9,7 @@ analyzer:
     - windows/**
     - macos/**
     - linux/**
+    - lib/firebase_options.dart
 
 linter:
   rules:
