@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:squadra_csi/features/auth/domain/app_user.dart';
 import 'package:squadra_csi/features/auth/domain/auth_failure.dart';
 import 'package:squadra_csi/features/auth/domain/auth_repository.dart';
@@ -69,7 +70,15 @@ class FirebaseAuthRepository implements AuthRepository {
       'email-already-in-use' => const EmailAlreadyInUse(),
       'weak-password' => const WeakPassword(),
       'network-request-failed' => const NetworkFailure(),
-      _ => const UnknownAuthFailure(),
+      _ => _unknownFailure(exception),
     };
+  }
+
+  AuthFailure _unknownFailure(FirebaseAuthException exception) {
+    debugPrint(
+      'Errore di autenticazione non gestito: '
+      '${exception.code} - ${exception.message}',
+    );
+    return const UnknownAuthFailure();
   }
 }
