@@ -7,25 +7,39 @@ import 'package:squadra_csi/features/auth/domain/app_user.dart';
 import 'package:squadra_csi/features/auth/presentation/login_page.dart';
 import 'package:squadra_csi/features/team/data/team_repository_provider.dart';
 import 'package:squadra_csi/features/team/domain/team.dart';
+import 'package:squadra_csi/features/team/domain/team_member.dart';
+import 'package:squadra_csi/features/team/domain/team_role.dart';
 import 'package:squadra_csi/features/team/presentation/team_setup_page.dart';
 
 import 'helpers/fake_auth_repository.dart';
 import 'helpers/fake_team_repository.dart';
 
 const _testUser = AppUser(id: 'test-user', email: 'mario@example.com');
+
 const _testTeam = Team(
   id: 'team-1',
   name: 'Real Bellusco',
   inviteCode: 'ABC234',
 );
 
-Widget _buildApp({AppUser? user, Team? team}) {
+const _testMembers = [
+  TeamMember(userId: 'test-user', displayName: 'Mario', role: TeamRole.manager),
+  TeamMember(userId: 'u2', displayName: 'Luca', role: TeamRole.player),
+];
+
+Widget _buildApp({
+  AppUser? user,
+  Team? team,
+  List<TeamMember> members = const [],
+}) {
   return ProviderScope(
     overrides: [
       authRepositoryProvider.overrideWithValue(
         FakeAuthRepository(initialUser: user),
       ),
-      teamRepositoryProvider.overrideWithValue(FakeTeamRepository(team: team)),
+      teamRepositoryProvider.overrideWithValue(
+        FakeTeamRepository(team: team, members: members),
+      ),
     ],
     child: const App(),
   );
@@ -64,5 +78,20 @@ void main() {
 
     expect(find.text('Profilo'), findsOneWidget);
     expect(find.text('mario@example.com'), findsOneWidget);
+  });
+
+  testWidgets('mostra la rosa con il codice invito', (tester) async {
+    await tester.pumpWidget(
+      _buildApp(user: _testUser, team: _testTeam, members: _testMembers),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.groups));
+    await tester.pumpAndSettle();
+
+    expect(find.text('ABC234'), findsOneWidget);
+    expect(find.text('Dirigente'), findsOneWidget);
+    expect(find.text('Giocatore'), findsOneWidget);
+    expect(find.text('Tu'), findsOneWidget);
   });
 }
