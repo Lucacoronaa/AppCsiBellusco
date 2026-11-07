@@ -11,6 +11,11 @@ class EventsPage extends StatelessWidget {
         title: const Text('Calendario'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.groups),
+            tooltip: 'Rosa',
+            onPressed: () => context.push('/team'),
+          ),
+          IconButton(
             icon: const Icon(Icons.person),
             tooltip: 'Profilo',
             onPressed: () => context.push('/profile'),

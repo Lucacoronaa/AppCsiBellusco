@@ -1,0 +1,61 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    function memberPath(teamId) {
+      return /databases/$(database)/documents/teams/$(teamId)/members/$(request.auth.uid);
+    }
+
+    function isMember(teamId) {
+      return signedIn() && exists(memberPath(teamId));
+    }
+
+    function canManage(teamId) {
+      return isMember(teamId)
+        && get(memberPath(teamId)).data.role in ['coach', 'manager'];
+    }
+
+    match /users/{userId} {
+      allow read, create, update: if isSelf(userId);
+    }
+
+    match /inviteCodes/{code} {
+      allow get: if signedIn();
+      allow list: if false;
+      allow create: if signedIn()
+        && getAfter(/databases/$(database)/documents/teams/$(request.resource.data.teamId)).data.createdBy == request.auth.uid;
+    }
+
+    match /teams/{teamId} {
+      allow read: if isMember(teamId);
+      allow create: if signedIn()
+        && request.resource.data.createdBy == request.auth.uid;
+      allow update: if canManage(teamId);
+
+      match /members/{userId} {
+        allow read: if isMember(teamId);
+
+        allow create: if isSelf(userId) && (
+          (
+            request.resource.data.role == 'manager'
+            && getAfter(/databases/$(database)/documents/teams/$(teamId)).data.createdBy == request.auth.uid
+          ) || (
+            request.resource.data.role == 'player'
+            && get(/databases/$(database)/documents/inviteCodes/$(request.resource.data.inviteCode)).data.teamId == teamId
+          )
+        );
+
+        allow update, delete: if canManage(teamId);
+      }
+    }
+  }
+}
